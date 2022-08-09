@@ -198,6 +198,7 @@ writer = csv.writer(newCSVfile)
 writer.writerow(['SL.','Question Name*','Question Text*','Question Table <QTABLE>','Answer Format*','Answer Column header/s Level1*','Answer Column header/s Level2','Answer Row header/s Level2','Option A*','Option B*','Option C*','Option D*','Correct Answer*','Tags-Topic','Tag-Difficulty*','Tag-UniqueID*','General Feedback','Grade(Default =1)','Penalty (default = none)','Shuffle Answers (default = no)','Answer numbering (default = abcd..)'])
 # Adding Data
 
+ans_table_iterator = 0
 for i in range (0,len(SL_COLUMN_A)):
     cur_seral = SL_COLUMN_A[i];
     cur_qus_name = PDF_PATH.split('/')[-1].split('.')[0] + "_" + str(i)
@@ -213,7 +214,7 @@ for i in range (0,len(SL_COLUMN_A)):
     # print(ANSWER_TABLE_DATA)
     # Answer Format
     # print(HAS_ANY_ANSWER_TABLE)
-
+    # HAS TABLE i mane i-th questioner option e kono TABLE ACHE KINA
     if(HAS_ANY_ANSWER_TABLE[i]==True):
         # Getting Table Format
         cur_answer_format = "With Table"
@@ -227,7 +228,7 @@ for i in range (0,len(SL_COLUMN_A)):
                 cur_ans_col_header_l1+= item + ","
 
         #Check for L2 Headers
-        if "A" not in ANSWER_TABLE_DATA[i][1]:
+        if "A" not in ANSWER_TABLE_DATA[i][1] and "A \nB \nC \nD" not in ANSWER_TABLE_DATA[i][1]:
             for item in ANSWER_TABLE_DATA[i][1]:
                 if (str(item).isspace() or item == "," or item == None):
                     continue
@@ -239,27 +240,36 @@ for i in range (0,len(SL_COLUMN_A)):
         cur_answer_format = "No Table"
 
     # print(ALL_TABLE_DATA)
+
     #Filliing Up Options
     if(HAS_ANY_ANSWER_TABLE[i]==True):
         # print("Table Found")
-        for data in ANSWER_TABLE_DATA[i]:
+        for data in ANSWER_TABLE_DATA[ans_table_iterator]:
             # print("data: ", data)
             if("A" in data or "B" in data or "C" in data or "D" in 'A \nB \nC \nD' in data ):
-                cur_options = ["ANSWER TABLE DATA 1", "ANSWER TABLE DATA 2", "ANSWER TABLE DATA 3", "ANSWER TABLE DATA 4"]
+                cur_options.append(data)
+                # print(data)
     else:
         cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
 
-    print(cur_options)
-    #Current Option Processing
-    # cur_options_processed = []
-    #
-    # for eachOption in cur_options:
-    #     tempstr=""
-    #     for item in eachOption:
-    #         tempstr+=item+"##"
-    #     cur_options_processed.append(tempstr)
+
+    if(len(cur_options)==1):
+        new_temp_options = []
+        for item in cur_options[0]:
+            new_temp_options.append(item.split("\n"))
+        # print("New : ", new_temp_options)
+        cur_options = new_temp_options
+
+        new_temp_options = []
+        for i in range (0,4):
+            newlist = []
+            for j in range(0,len(cur_options)):
+                newlist.append(cur_options[j][i])
+            new_temp_options.append(newlist)
+        cur_options = new_temp_options
+
+
     writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,cur_options[0],cur_options[1],cur_options[2],cur_options[3]])
-#
 
 
 newCSVfile.close()
