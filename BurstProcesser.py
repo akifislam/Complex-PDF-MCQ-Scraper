@@ -1,26 +1,16 @@
+
 # -*- coding: utf-8 -*-
 
 # Task 1 : Detect Graph / Picture and Add to Seperate Temporary Column
+UPLOAD_LINK = 'http://moodle.mpower-social.com/converter/pix/'
 
 import pdfplumber
 import csv
+import answerScrapper as ANSWER_SCRAPPER
+import glob
 import time
-PDF_PATH = '/Users/akifislam/PycharmProjects/PlumberTest/Resources/AS  Biology (9700)/2013/9700_w13_qp_13.pdf'
-CSVFILENAME = PDF_PATH.split('/')[-1].split('.')[0]+ "_CompleteInput.csv"
+PDF_PATH = " "
 
-print(CSVFILENAME)
-
-# CSV Processing Part
-newCSVfile = open(f'/Users/akifislam/Desktop/{CSVFILENAME}', 'w')
-writer = csv.writer(newCSVfile)
-
-
-# Adding Header
-writer.writerow(['SL.', 'Question Name*', 'Question Text*','(TEMP)Any QTABLE?','(TEMP)Require Screenshot?','Question Table <QTABLE>', 'Answer Format*',
-                 'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
-                 'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
-                 'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
-                 'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
 # Adding Data
 
 PAGE_NUMBER = 6
@@ -33,17 +23,31 @@ HAS_ANY_ANSWER_TABLE = []
 ALL_TABLE_DATA = []
 ANSWER_TABLE_DATA = []
 OPTION_TABLE_DATA = []
+CORRECT_MCQ_ANSWERS = []
+IMGCOUNTER= 1
 
 
+def  inc_IMGCOUNTER():
+    global IMGCOUNTER
+    IMGCOUNTER+=1
+
+def clear_IMGCOUNTER():
+    global IMGCOUNTER
+    IMGCOUNTER=0
 
 def isExistAnyDiagram(question):
-    if(str(question).__contains__("diagram") or str(question).__contains__("graph") or str(question).__contains__("shows")):
-        return "Diagram/Graph Here"
+    if(str(question).__contains__("diagram") or str(question).__contains__("graph")):
+        return True
     else:
-        return " "
+        return False
 
 
 
+def getCOORECTANSWERifExist(ques_no):
+    if(len(CORRECT_MCQ_ANSWERS)<ques_no):
+        return "Can't Parse"
+    else:
+        return CORRECT_MCQ_ANSWERS[ques_no-1]
 
 def beautifyQTABLE(table):
     cur_table_str = ""
@@ -67,7 +71,7 @@ def beautifyQTABLE(table):
         new_temp_options.append(item.split("\n"))
 
     lastRow = new_temp_options
-    print(lastRow)
+    # print(lastRow)
 
     for i in range (0,len(lastRow[0])):
         for j in range(0,len(lastRow)):
@@ -86,7 +90,7 @@ def beautifyQTABLE(table):
 
 def searchQTABLE(ALL_TABLES,ONLY_ANS_TABLES):
     ALL_QTABLES = [item for item in ALL_TABLE_DATA[0] if item not in ANSWER_TABLE_DATA]
-    print("\n\nQTABLES are : ",ALL_QTABLES)
+    # print("\n\nQTABLES are : ",ALL_QTABLES)
     return ALL_QTABLES[0]
 
 
@@ -198,7 +202,7 @@ def collectQuestions():
                     else:
                         cur_question += line + "\n"
 
-    print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
+    # print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
 
 
 
@@ -221,14 +225,6 @@ def collectOptions():
             if(line.isspace()):
                 continue
 
-            #Graph Detection
-            # if(line.__contains__("graph") or line.__contains__("diagram") ):
-            #     print("\nGraph Detected\n")
-
-            # #Table Detection
-            # if(line.count("  ")>=2):
-            #     print("\nTable Detected\n")
-
             # Logic
             for i in range (0,4):
                 if line.__contains__(possible_options[i]):
@@ -242,6 +238,7 @@ def collectOptions():
                 if(len(options_for_cur_question)==4):
                     OPTIONS_COLUMN_I_J_K_L.append(options_for_cur_question)
                     options_for_cur_question = []
+
 
     # print("For Page " + str(PAGE_NUMBER) + "Options are\n" + str(OPTIONS_COLUMN_I_J_K_L))
 
@@ -284,12 +281,14 @@ def NuclearBomb():
     ALL_TABLE_DATA.clear()
     ANSWER_TABLE_DATA.clear()
     OPTION_TABLE_DATA.clear()
+    clear_IMGCOUNTER()
     # print("Nuclear Called")
-    print("Now Count Serial : ",SL_COLUMN_A)
+    # print("Now Count Serial : ",SL_COLUMN_A)
 
 
 
 def killDataEntryExpert():
+
     collectQuestions()
     collectOptions()
 
@@ -318,11 +317,13 @@ def killDataEntryExpert():
     ans_table_iterator = 0
     for i in range (0,len(SL_COLUMN_A)):
         cur_seral = SL_COLUMN_A[i];
-        cur_qus_name = PDF_PATH.split('/')[-1].split('.')[0] + "_" + str(i)
+        cur_qus_name = PDF_PATH.split('/')[-1].split('.')[0]
+
         try:
             cur_question_text = QUES_TEXT_COLUMN_B[i]
         except:
             cur_question_text = "Can't Parse"
+
         cur_Q_TABLE = ""
         cur_ans_row_header_l2 = "";
         cur_options = []
@@ -379,7 +380,11 @@ def killDataEntryExpert():
                     # print(data)
             ans_table_iterator+=1
         else:
-            cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
+            if(len(OPTIONS_COLUMN_I_J_K_L[i])==4):
+                cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
+            else:
+                cur_options = ["Can't Parse", "Can't Parse", "Can't Parse", "Can't Parse"]
+
 
         # print("ALL TABLE DATA", ALL_TABLE_DATA)
         if(len(cur_options)==1):
@@ -399,10 +404,16 @@ def killDataEntryExpert():
 
 
         # print("OPTION SIZE : ", len(cur_options))
-        print(cur_options)
+        # print(cur_options)
 
         temp_QTABLE_data = []
-        temp_graph_diagram_status = isExistAnyDiagram(cur_question_text)
+
+
+        if(isExistAnyDiagram(cur_question_text)):
+            temp_graph_diagram_status = f"{UPLOAD_LINK}{cur_qus_name}_{IMGCOUNTER}"
+            inc_IMGCOUNTER()
+        else:
+            temp_graph_diagram_status = ""
         if (len(ALL_TABLE_DATA[0]) - len(ANSWER_TABLE_DATA)) > 0:
             temp_QTABLE_data = searchQTABLE(ALL_TABLE_DATA[0], ANSWER_TABLE_DATA)
 
@@ -411,37 +422,63 @@ def killDataEntryExpert():
         except:
             temp_QTABLE_data = temp_QTABLE_data
 
+        cur_qus_correct_ans = getCOORECTANSWERifExist(i)
         #Error Handler
         if(len(cur_options)==4):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i])])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i]),cur_qus_correct_ans])
         elif(len(cur_options)==3):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse",cur_qus_correct_ans])
         elif(len(cur_options)==2):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse",cur_qus_correct_ans])
         elif(len(cur_options)==1):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse",cur_qus_correct_ans])
         elif(len(cur_options)==0):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse",cur_qus_correct_ans])
+    print("Status : SUCCESS")
 
 
 
+import glob
+path = '/Users/akifislam/Desktop/QuestionReader/AS  Biology (9700)'
+count = 0
+for cur_path in glob.glob(path+"/**", recursive = True):
+    NuclearBomb()
+    if(str(cur_path[-18:]).__contains__("qp") and str(cur_path[-18:]).__contains__(".pdf")):
+        PDF_PATH = cur_path
+        CSVFILENAME = cur_path[-18:] + "_CompleteInput.csv"
+        print("Trying to Create CSV on Directory : ", cur_path[0:63])
+        print("Creating New File :", CSVFILENAME)
 
-with pdfplumber.open(PDF_PATH) as pdf:
-    QusSerialCounter = 0
-    totalPage = len(pdf.pages)
-    print("TOTAL PAGE in this DOC :" ,totalPage)
+        with pdfplumber.open(PDF_PATH) as pdf:
+            newCSVfile = open(cur_path[0:64]+'Completed/'+CSVFILENAME, 'w')
 
-    for cur_page in range (1,totalPage):
-        PAGE_NUMBER = cur_page
-        countSerial(QusSerialCounter)
-        QusSerialCounter+=len(SL_COLUMN_A)
-        try:
-            killDataEntryExpert()
-        except:
-            print("Couldn't Parse")
-        NuclearBomb()
-        print("===========")
+            writer = csv.writer(newCSVfile)
+            # Adding Header
+            writer.writerow(
+                ['SL.', 'Question Name*', 'Question Text*', '(TEMP)Any QTABLE?', '(TEMP)Require Screenshot?',
+                 'Question Table <QTABLE>', 'Answer Format*',
+                 'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
+                 'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
+                 'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
+                 'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
 
-    newCSVfile.close()
+
+            QusSerialCounter = 0
+            totalPage = len(pdf.pages)
+            print("TOTAL PAGE in this DOC :" ,totalPage)
+            CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
+            print(CORRECT_MCQ_ANSWERS)
+            for cur_page in range (1,totalPage):
+                PAGE_NUMBER = cur_page
+                countSerial(QusSerialCounter)
+                QusSerialCounter+=len(SL_COLUMN_A)
+                try:
+                    killDataEntryExpert()
+                except:
+                    print("Couldn't Parse")
+                NuclearBomb()
+                print("===========")
+            newCSVfile.close()
+
 
 
