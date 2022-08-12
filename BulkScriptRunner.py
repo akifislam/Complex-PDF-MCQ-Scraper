@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+# Task 1 : Detect Graph / Picture and Add to Seperate Temporary Column
+# Task 2 : Reformat Table Data
+# Task 3 : Reformat Answer List from ['A',High', 'B', 'Low', 'C', 'Medium', 'D', 'High'] to ['A', 'High', 'B' ...] to  A#HIGH#Q
+
 import pdfplumber
 import csv
 import time
@@ -34,6 +40,33 @@ def updateQTABLEStatus(index,status):
     if(HAS_ANY_QTABLE[index]==False):
         HAS_ANY_QTABLE[index] = status
 
+def beautifyOptions(options,hasTable):
+    tick = '(cid:1) '
+    cross='(cid:2) '
+
+    print("Original Options : ",options)
+    if hasTable==False:
+        return options
+    else:
+        stringToInsert = ""
+        for item in range(1,len(options)-1):
+            if(str(options[item]).__contains__(tick)):
+                stringToInsert += "Right " + "#"
+            elif(str(options[item]).__contains__(cross)):
+                stringToInsert += "Cross " + "#"
+            else:
+                stringToInsert += options[item] + "#"
+
+        #Again:
+        if (str(options[-1]).__contains__(tick)):
+            stringToInsert += "Right"
+        elif (str(options[-1]).__contains__(cross)):
+            stringToInsert += "Cross"
+        else:
+            stringToInsert+= str(options[-1])
+        print("Value to Insert : ",stringToInsert)
+        return stringToInsert
+
 
 def countSerial(initialCount):
     SLCOUNTER = initialCount
@@ -50,7 +83,7 @@ def countSerial(initialCount):
                 SLCOUNTER+=1
                 SL_COLUMN_A.append(SLCOUNTER)
 
-        print("For Page " + str(PAGE_NUMBER) + "Question Serial : " + str(SL_COLUMN_A))
+        print("For Page " + str(PAGE_NUMBER) + "\nQuestion Serial : " + str(SL_COLUMN_A)+"\n")
 
 
 
@@ -113,7 +146,7 @@ def collectQuestions():
                     else:
                         cur_question += line + "\n"
 
-    print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
+    # print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
 
 
 
@@ -175,14 +208,14 @@ def getAnswerTableLocation():
             HAS_ANY_ANSWER_TABLE.append(False)
 
     print("For Page " + str(PAGE_NUMBER) + "Table Location\n" + str(HAS_ANY_ANSWER_TABLE))
-
+    print()
 def getAnswerTableData():
     with pdfplumber.open(PDF_PATH) as pdf:
         # print(pdf.pages[PAGE_NUMBER].extract_tables())
         ALL_TABLE_DATA.append(pdf.pages[PAGE_NUMBER].extract_tables())
     # if(len(ALL_TABLE_DATA[0])!=len(OPTIONS_COLUMN_I_J_K_L)):
     #         # print("Q TABLE FOUND")
-    print("For Page " + str(PAGE_NUMBER) + "ALL Table Data\n" + str(ALL_TABLE_DATA))
+    print("For Page " + str(PAGE_NUMBER) + "ALL Table Data : \n " + str(ALL_TABLE_DATA))
     print()
     print()
 
@@ -192,12 +225,13 @@ def NuclearBomb():
     SL_COLUMN_A.clear() # For SL Input in Excels
     QUES_TEXT_COLUMN_B.clear() # For Question in Excels
     OPTIONS_COLUMN_I_J_K_L.clear() # Collecting Options
+
     HAS_ANY_QTABLE.clear()
     HAS_ANY_ANSWER_TABLE.clear()
     ALL_TABLE_DATA.clear()
     ANSWER_TABLE_DATA.clear()
     OPTION_TABLE_DATA.clear()
-    print("Nuclear Called")
+    # print("Nuclear Called")
     print("Now Count Serial : ",SL_COLUMN_A)
 
 
@@ -279,6 +313,7 @@ def killDataEntryExpert():
                 if("A" in data or "B" in data or "C" in data or "D" in 'A \nB \nC \nD' in data ):
                     cur_options.append(data)
                     # print(data)
+            ans_table_iterator+=1
         else:
             cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
 
@@ -291,28 +326,30 @@ def killDataEntryExpert():
             cur_options = new_temp_options
 
             new_temp_options = []
-            for i in range (0,4):
+            for ii in range (0,4):
                 newlist = []
                 for j in range(0,len(cur_options)):
-                    newlist.append(cur_options[j][i])
+                    newlist.append(cur_options[j][ii])
                 new_temp_options.append(newlist)
             cur_options = new_temp_options
 
 
-        print("OPTION SIZE : ", len(cur_options))
+        # print("OPTION SIZE : ", len(cur_options))
         print(cur_options)
+
 
         #Error Handler
         if(len(cur_options)==4):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,cur_options[0],cur_options[1],cur_options[2],cur_options[3]])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i])])
         elif(len(cur_options)==3):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,cur_options[0],cur_options[1],cur_options[2],"Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse"])
         elif(len(cur_options)==2):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,cur_options[0],cur_options[1],"Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse"])
         elif(len(cur_options)==1):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,cur_options[0],"Cant Parse","Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse"])
         elif(len(cur_options)==0):
             writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse"])
+
 
 
 
@@ -323,6 +360,7 @@ with pdfplumber.open(PDF_PATH) as pdf:
     QusSerialCounter = 0
     totalPage = len(pdf.pages)
     print("TOTAL PAGE in this DOC :" ,totalPage)
+
     for cur_page in range (1,totalPage):
         PAGE_NUMBER = cur_page
         countSerial(QusSerialCounter)
