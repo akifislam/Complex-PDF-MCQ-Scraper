@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Task 1 : Detect Graph / Picture and Add to Seperate Temporary Column, QUS[i] . contains "Graph or Diagram" hole New Temp COlumne sheta add kore rakhbe
 
 import pdfplumber
 import csv
@@ -245,6 +244,30 @@ def searchQTABLE(ALL_TABLES,ONLY_ANS_TABLES):
     #####
     ####
 
+def showImage():
+    # importing the necessary libraries
+    import fitz
+
+    # opeing the file
+    file_path = PDF_PATH
+    pdf_file = fitz.open(file_path)
+
+    # Reading the location where to save the file
+    location = "/Users/akifislam/Desktop/Images"
+
+    # finding number of pages in the pdf
+    number_of_pages = len(pdf_file)
+    #
+    # iterating through each page in the pdf
+
+    xref = pdf_file.load_page(7)
+    image = fitz.Pixmap(pdf_file, xref)
+    if image.n < 5:
+        image.writePNG("{}/image{}-{}.png".format(location, 7, 0))
+    # if it is CMYK: convert to RGB first
+    else:
+        new_image = fitz.Pixmap(fitz.csRGB, image)
+        new_image.writePNG("{}/image{}-{}.png".foramt(location, 7, 0))
 def killDataEntryExpert():
     collectQuestions()
     collectOptions()
@@ -384,9 +407,9 @@ def killDataEntryExpert():
 
 
 with pdfplumber.open(PDF_PATH) as pdf:
-    QusSerialCounter = 7
+    QusSerialCounter = 19
     totalPage = len(pdf.pages)
-    startPage = 3
+    startPage = 7
     totalPage = startPage+1
     # print("TOTAL PAGE in this DOC :" ,totalPage)
 
@@ -400,4 +423,4 @@ with pdfplumber.open(PDF_PATH) as pdf:
 
     newCSVfile.close()
 
-
+showImage()

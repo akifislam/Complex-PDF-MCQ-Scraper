@@ -16,7 +16,7 @@ writer = csv.writer(newCSVfile)
 
 
 # Adding Header
-writer.writerow(['SL.', 'Question Name*', 'Question Text*', 'Question Table <QTABLE>', 'Answer Format*',
+writer.writerow(['SL.', 'Question Name*', 'Question Text*','(TEMP)Any QTABLE?','(TEMP)Require Screenshot?','Question Table <QTABLE>', 'Answer Format*',
                  'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
                  'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
                  'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
@@ -34,15 +34,69 @@ ALL_TABLE_DATA = []
 ANSWER_TABLE_DATA = []
 OPTION_TABLE_DATA = []
 
-def updateQTABLEStatus(index,status):
-    if(HAS_ANY_QTABLE[index]==False):
-        HAS_ANY_QTABLE[index] = status
+
+
+def isExistAnyDiagram(question):
+    if(str(question).__contains__("diagram") or str(question).__contains__("graph")):
+        return "Diagram/Graph Here"
+    else:
+        return " "
+
+
+
+
+def beautifyQTABLE(table):
+    cur_table_str = ""
+    for row in range(0,len(table)-1):
+        for each_column in range (0,len(table[row])):
+            temp_t = table[row]
+            if(each_column!=len(table[row])-1):
+                modified_str = temp_t[each_column].replace("\n"," ")
+                cur_table_str+=modified_str + "#"
+            else:
+                modified_str = temp_t[each_column].replace("\n", " ")
+                if(row!=len(table)):
+                    cur_table_str+=modified_str+"@@\n"
+                else:
+                    cur_table_str+=modified_str
+
+    #Processing Last Row of QTABLE
+    lastRow = table[-1]
+    new_temp_options = []
+    for item in lastRow:
+        new_temp_options.append(item.split("\n"))
+
+    lastRow = new_temp_options
+    print(lastRow)
+
+    for i in range (0,len(lastRow[0])):
+        for j in range(0,len(lastRow)):
+            if(j==len(lastRow)-1):
+                cur_table_str += lastRow[j][i]
+                continue
+            cur_table_str+=lastRow[j][i]+"#"
+        if i!=len(lastRow[0])-1:
+            cur_table_str+="@@\n"
+
+
+    return(cur_table_str)
+
+
+
+
+def searchQTABLE(ALL_TABLES,ONLY_ANS_TABLES):
+    ALL_QTABLES = [item for item in ALL_TABLE_DATA[0] if item not in ANSWER_TABLE_DATA]
+    print("\n\nQTABLES are : ",ALL_QTABLES)
+    return ALL_QTABLES[0]
+
+
+# def beautifyQTABLE(table):
 
 def beautifyOptions(options,hasTable):
     tick = '(cid:1)'
     cross='(cid:2)'
 
-    print("Original Options : ",options)
+    # print("Original Options : ",options)
     if hasTable==False:
         return options
     else:
@@ -62,7 +116,7 @@ def beautifyOptions(options,hasTable):
             stringToInsert += "Cross"
         else:
             stringToInsert+= str(options[-1])
-        print("Value to Insert : ",stringToInsert)
+        # print("Value to Insert : ",stringToInsert)
         return stringToInsert
 
 
@@ -188,7 +242,7 @@ def collectOptions():
                 if(len(options_for_cur_question)==4):
                     OPTIONS_COLUMN_I_J_K_L.append(options_for_cur_question)
                     options_for_cur_question = []
-    print("For Page " + str(PAGE_NUMBER) + "Options are\n" + str(OPTIONS_COLUMN_I_J_K_L))
+    # print("For Page " + str(PAGE_NUMBER) + "Options are\n" + str(OPTIONS_COLUMN_I_J_K_L))
 
 
 
@@ -205,17 +259,17 @@ def getAnswerTableLocation():
         else:
             HAS_ANY_ANSWER_TABLE.append(False)
 
-    print("For Page " + str(PAGE_NUMBER) + "Table Location\n" + str(HAS_ANY_ANSWER_TABLE))
-    print()
+    # print("For Page " + str(PAGE_NUMBER) + "Table Location\n" + str(HAS_ANY_ANSWER_TABLE))
+    # print()
 def getAnswerTableData():
     with pdfplumber.open(PDF_PATH) as pdf:
         # print(pdf.pages[PAGE_NUMBER].extract_tables())
         ALL_TABLE_DATA.append(pdf.pages[PAGE_NUMBER].extract_tables())
     # if(len(ALL_TABLE_DATA[0])!=len(OPTIONS_COLUMN_I_J_K_L)):
     #         # print("Q TABLE FOUND")
-    print("For Page " + str(PAGE_NUMBER) + "ALL Table Data : \n " + str(ALL_TABLE_DATA))
-    print()
-    print()
+    # print("For Page " + str(PAGE_NUMBER) + "ALL Table Data : \n " + str(ALL_TABLE_DATA))
+    # print()
+    # print()
 
 
 
@@ -293,7 +347,7 @@ def killDataEntryExpert():
             cur_ans_col_header_l1 = cur_ans_col_header_l1.lstrip(" ").strip(',')
 
 
-            print("Header Set to : ", cur_ans_col_header_l1)
+            # print("Header Set to : ", cur_ans_col_header_l1)
 
             #Check for L2 Headers
             if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][1] and "A \nB \nC \nD" not in ANSWER_TABLE_DATA[ans_table_iterator][1]:
@@ -303,7 +357,7 @@ def killDataEntryExpert():
                     cur_ans_col_header_l2 += item + ","
             cur_ans_col_header_l2 = cur_ans_col_header_l2.lstrip(" ").lstrip(',')
 
-            print("Header Set to : ",cur_ans_col_header_l2)
+            # print("Header Set to : ",cur_ans_col_header_l2)
         else:
             cur_ans_col_header_l2=""
             cur_ans_col_header_l1=""
@@ -343,21 +397,27 @@ def killDataEntryExpert():
         # print("OPTION SIZE : ", len(cur_options))
         print(cur_options)
 
+        temp_QTABLE_data = []
+        temp_graph_diagram_status = isExistAnyDiagram(cur_question_text)
+        if (len(ALL_TABLE_DATA[0]) - len(ANSWER_TABLE_DATA)) > 0:
+            temp_QTABLE_data = searchQTABLE(ALL_TABLE_DATA[0], ANSWER_TABLE_DATA)
+
+        try:
+            temp_QTABLE_data = beautifyQTABLE(temp_QTABLE_data)
+        except:
+            temp_QTABLE_data = temp_QTABLE_data
 
         #Error Handler
         if(len(cur_options)==4):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i])])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i])])
         elif(len(cur_options)==3):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse"])
         elif(len(cur_options)==2):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data, temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse"])
         elif(len(cur_options)==1):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse"])
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse"])
         elif(len(cur_options)==0):
-            writer.writerow([cur_seral,cur_qus_name,cur_question_text, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse"])
-
-
-
+            writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse"])
 
 
 
