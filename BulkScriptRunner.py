@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # Task 1 : Detect Graph / Picture and Add to Seperate Temporary Column
-# Task 2 : Reformat Table Data
-# Task 3 : Reformat Answer List from ['A',High', 'B', 'Low', 'C', 'Medium', 'D', 'High'] to ['A', 'High', 'B' ...] to  A#HIGH#Q
 
 import pdfplumber
 import csv
@@ -41,8 +39,8 @@ def updateQTABLEStatus(index,status):
         HAS_ANY_QTABLE[index] = status
 
 def beautifyOptions(options,hasTable):
-    tick = '(cid:1) '
-    cross='(cid:2) '
+    tick = '(cid:1)'
+    cross='(cid:2)'
 
     print("Original Options : ",options)
     if hasTable==False:
@@ -291,13 +289,21 @@ def killDataEntryExpert():
                         continue
                     cur_ans_col_header_l1+= item + ","
 
+            #Deleting Unnecessary Comma from both side
+            cur_ans_col_header_l1 = cur_ans_col_header_l1.lstrip(" ").strip(',')
+
+
+            print("Header Set to : ", cur_ans_col_header_l1)
+
             #Check for L2 Headers
             if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][1] and "A \nB \nC \nD" not in ANSWER_TABLE_DATA[ans_table_iterator][1]:
                 for item in ANSWER_TABLE_DATA[ans_table_iterator][1]:
                     if (str(item).isspace() or item == "," or item == None):
                         continue
                     cur_ans_col_header_l2 += item + ","
+            cur_ans_col_header_l2 = cur_ans_col_header_l2.lstrip(" ").lstrip(',')
 
+            print("Header Set to : ",cur_ans_col_header_l2)
         else:
             cur_ans_col_header_l2=""
             cur_ans_col_header_l1=""

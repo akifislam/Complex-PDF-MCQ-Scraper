@@ -13,4 +13,8 @@ def beautifyOptions(options,hasTable):
 
         return stringToInsert
 
-print(beautifyOptions(x,True))
+# print(beautifyOptions(x,True))
+
+headers = "  ,centrioles,cilia,mitochondria,vacuole,"
+headers = headers.lstrip().lstrip(',')
+print(headers)
