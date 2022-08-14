@@ -1,3 +1,5 @@
-1. Question Serial Majhe Majhe Miss korche. 1,2,3,5,6,...39 erokom
-2. 9700_w11_qp_13 er Correct Answer Column Vul Generate hoy keno!?!?!?!?
-3.
+MAJOR BUGS :
+
+1. Question Serial Majhe Majhe Miss korche. 1,2,3,5,6,...39 erokom (Fixed)
+2. 9700_w11_qp_13 er Correct Answer Column Vul Generate hoy keno!?!?!?!? (Fixed)
+

@@ -24,12 +24,9 @@ ALL_TABLE_DATA = []
 ANSWER_TABLE_DATA = []
 OPTION_TABLE_DATA = []
 CORRECT_MCQ_ANSWERS = []
-IMGCOUNTER= 1
 
 
-def  inc_IMGCOUNTER():
-    global IMGCOUNTER
-    IMGCOUNTER+=1
+
 
 def clear_IMGCOUNTER():
     global IMGCOUNTER
@@ -45,6 +42,7 @@ def isExistAnyDiagram(question):
 
 def getCOORECTANSWERifExist(ques_no):
     if(len(CORRECT_MCQ_ANSWERS)<ques_no):
+        print("Can't Parse because of GetCOrrectFunction")
         return "Can't Parse"
     else:
         print(f"Answer for Question No {ques_no} is {CORRECT_MCQ_ANSWERS[ques_no-1]}")
@@ -283,8 +281,8 @@ def NuclearBomb():
     ANSWER_TABLE_DATA.clear()
     OPTION_TABLE_DATA.clear()
     clear_IMGCOUNTER()
-    CORRECT_MCQ_ANSWERS
-    print("Correct Answer List Size : ", len(CORRECT_MCQ_ANSWERS))
+
+    # print("Correct Answer List Size : ", len(CORRECT_MCQ_ANSWERS))
     # print("Nuclear Called")
     # print("Now Count Serial : ",SL_COLUMN_A)
 
@@ -299,6 +297,7 @@ def killDataEntryExpert():
     getAnswerTableData()
 
 
+    #Getting Answer Table Data
     for i in range (0,len(ALL_TABLE_DATA[0])):
         AB_counter = 0
         # print(ALL_TABLE_DATA[0][i]) #First Table
@@ -314,81 +313,82 @@ def killDataEntryExpert():
 
 
 
-    # newCSVfile = open('/Users/akifislam/Desktop/summary.csv', 'w')
 
 
+    # Getting Question Text for Column B
     ans_table_iterator = 0
     for i in range (0,len(SL_COLUMN_A)):
         cur_seral = SL_COLUMN_A[i];
         cur_qus_name = PDF_PATH.split('/')[-1].split('.')[0]
 
+
         try:
             cur_question_text = QUES_TEXT_COLUMN_B[i]
         except:
             cur_question_text = "Can't Parse"
+            print("Because Q_B[i] not exist")
+            # print(QUES_TEXT_COLUMN_B)
 
         cur_Q_TABLE = ""
-        cur_ans_row_header_l2 = "";
+        cur_ans_row_header_l2 = ""
         cur_options = []
         cur_ans_col_header_l2 = ""
         cur_ans_col_header_l1 = ""
         cur_answer_format = ""
 
-        # print(ALL_TABLE_DATA)
-        # print(ANSWER_TABLE_DATA)
-        # Answer Format
-        # print(HAS_ANY_ANSWER_TABLE)
         # HAS TABLE i mane i-th questioner option e kono TABLE ACHE KINA
-        if(HAS_ANY_ANSWER_TABLE[i]==True):
-            # Getting Table Format
-            cur_answer_format = "With Table"
+        try:
+            if(HAS_ANY_ANSWER_TABLE[i]==True):
+                # Getting Table Format
+                cur_answer_format = "With Table"
 
-            # Check for L1 Headers
-            # print("Table : ",ANSWER_TABLE_DATA[ans_table_iterator])
-            if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][0]:
-                for item in ANSWER_TABLE_DATA[ans_table_iterator][0]:
-                    if(str(item).isspace() or item=="," or item==None):
-                        continue
-                    cur_ans_col_header_l1+= item + ","
+                # Check for L1 Headers
+                # print("Table : ",ANSWER_TABLE_DATA[ans_table_iterator])
+                if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][0]:
+                    for item in ANSWER_TABLE_DATA[ans_table_iterator][0]:
+                        if(str(item).isspace() or item=="," or item==None):
+                            continue
+                        cur_ans_col_header_l1+= item + "#"
 
-            #Deleting Unnecessary Comma from both side
-            cur_ans_col_header_l1 = cur_ans_col_header_l1.lstrip(" ").strip(',')
+                #Deleting Unnecessary Comma from both side
+                cur_ans_col_header_l1 = cur_ans_col_header_l1.lstrip(" ").strip(',')
 
 
-            # print("Header Set to : ", cur_ans_col_header_l1)
+                # print("Header Set to : ", cur_ans_col_header_l1)
 
-            #Check for L2 Headers
-            if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][1] and "A \nB \nC \nD" not in ANSWER_TABLE_DATA[ans_table_iterator][1]:
-                for item in ANSWER_TABLE_DATA[ans_table_iterator][1]:
-                    if (str(item).isspace() or item == "," or item == None):
-                        continue
-                    cur_ans_col_header_l2 += item + ","
-            cur_ans_col_header_l2 = cur_ans_col_header_l2.lstrip(" ").lstrip(',')
-
-            # print("Header Set to : ",cur_ans_col_header_l2)
-        else:
+                #Check for L2 Headers
+                if "A" not in ANSWER_TABLE_DATA[ans_table_iterator][1] and "A \nB \nC \nD" not in ANSWER_TABLE_DATA[ans_table_iterator][1]:
+                    for item in ANSWER_TABLE_DATA[ans_table_iterator][1]:
+                        if (str(item).isspace() or item == "," or item == None):
+                            continue
+                        cur_ans_col_header_l2 += item + "#"
+                cur_ans_col_header_l2 = cur_ans_col_header_l2.lstrip(" ").lstrip(',')
+        except:
+            # print("Couldn't load Answer Table information")
             cur_ans_col_header_l2=""
             cur_ans_col_header_l1=""
             cur_answer_format = "No Table"
 
         # print(ALL_TABLE_DATA)
 
-        #Filliing Up Options
-        if(HAS_ANY_ANSWER_TABLE[i]==True):
-            # print("Table Found")
-            for data in ANSWER_TABLE_DATA[ans_table_iterator]:
-                # print("data: ", data)
-                if("A" in data or "B" in data or "C" in data or "D" in 'A \nB \nC \nD' in data ):
-                    cur_options.append(data)
-                    # print(data)
-            ans_table_iterator+=1
-        else:
-            if(len(OPTIONS_COLUMN_I_J_K_L[i])==4):
-                cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
+        try:
+            #Filliing Up Options
+            if(HAS_ANY_ANSWER_TABLE[i]==True):
+                # print("Table Found")
+                for data in ANSWER_TABLE_DATA[ans_table_iterator]:
+                    # print("data: ", data)
+                    if("A" in data or "B" in data or "C" in data or "D" in 'A \nB \nC \nD' in data ):
+                        cur_options.append(data)
+                        # print(data)
+                ans_table_iterator+=1
             else:
-                cur_options = ["Can't Parse", "Can't Parse", "Can't Parse", "Can't Parse"]
+                if(len(OPTIONS_COLUMN_I_J_K_L[i])==4):
+                    cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
+                else:
+                    cur_options = ["Can't Parse", "Can't Parse", "Can't Parse", "Can't Parse"]
 
-
+        except:
+            print("Couldn't get Options")
         # print("ALL TABLE DATA", ALL_TABLE_DATA)
         if(len(cur_options)==1):
             new_temp_options = []
@@ -409,12 +409,16 @@ def killDataEntryExpert():
         # print("OPTION SIZE : ", len(cur_options))
         # print(cur_options)
 
+
         temp_QTABLE_data = []
 
+        # Deleting Hash from Right Side
+        cur_ans_col_header_l1 = cur_ans_col_header_l1.rstrip().rstrip('#')
+        cur_ans_col_header_l2 = cur_ans_col_header_l2.rstrip().rstrip('#')
+        cur_ans_row_header_l2 = cur_ans_row_header_l2.rstrip().rstrip('#')
 
         if(isExistAnyDiagram(cur_question_text)):
-            temp_graph_diagram_status = f"{UPLOAD_LINK}{cur_qus_name}_{IMGCOUNTER}"
-            inc_IMGCOUNTER()
+            temp_graph_diagram_status = f"{UPLOAD_LINK}{cur_qus_name}_{cur_seral}"
         else:
             temp_graph_diagram_status = ""
         if (len(ALL_TABLE_DATA[0]) - len(ANSWER_TABLE_DATA)) > 0:
