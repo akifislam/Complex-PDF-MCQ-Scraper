@@ -47,6 +47,7 @@ def getCOORECTANSWERifExist(ques_no):
     if(len(CORRECT_MCQ_ANSWERS)<ques_no):
         return "Can't Parse"
     else:
+        print(f"Answer for Question No {ques_no} is {CORRECT_MCQ_ANSWERS[ques_no-1]}")
         return CORRECT_MCQ_ANSWERS[ques_no-1]
 
 def beautifyQTABLE(table):
@@ -282,6 +283,8 @@ def NuclearBomb():
     ANSWER_TABLE_DATA.clear()
     OPTION_TABLE_DATA.clear()
     clear_IMGCOUNTER()
+    CORRECT_MCQ_ANSWERS
+    print("Correct Answer List Size : ", len(CORRECT_MCQ_ANSWERS))
     # print("Nuclear Called")
     # print("Now Count Serial : ",SL_COLUMN_A)
 
@@ -422,7 +425,7 @@ def killDataEntryExpert():
         except:
             temp_QTABLE_data = temp_QTABLE_data
 
-        cur_qus_correct_ans = getCOORECTANSWERifExist(i)
+        cur_qus_correct_ans = getCOORECTANSWERifExist(cur_seral)
         #Error Handler
         if(len(cur_options)==4):
             writer.writerow([cur_seral,cur_qus_name,cur_question_text,temp_QTABLE_data,temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i]),cur_qus_correct_ans])
@@ -450,7 +453,7 @@ for cur_path in glob.glob(path+"/**", recursive = True):
         print("Creating New File :", CSVFILENAME)
 
         with pdfplumber.open(PDF_PATH) as pdf:
-            newCSVfile = open(cur_path[0:64]+'Completed/'+CSVFILENAME, 'w')
+            newCSVfile = open(cur_path[0:64]+'Tested/'+CSVFILENAME, 'w')
 
             writer = csv.writer(newCSVfile)
             # Adding Header
@@ -467,7 +470,7 @@ for cur_path in glob.glob(path+"/**", recursive = True):
             totalPage = len(pdf.pages)
             print("TOTAL PAGE in this DOC :" ,totalPage)
             CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
-            print(CORRECT_MCQ_ANSWERS)
+
             for cur_page in range (1,totalPage):
                 PAGE_NUMBER = cur_page
                 countSerial(QusSerialCounter)
