@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Task 1 : Detect Graph / Picture and Add to Seperate Temporary Column
-UPLOAD_LINK = 'http://moodle.mpower-social.com/converter/pix'
+UPLOAD_LINK = 'http://moodle.mpower-social.com/converter/pix/images/'
 
 import pdfplumber
 import csv
