@@ -39,7 +39,7 @@ def getAnswer(question_pdf_path):
                 toInsert = str(listOfAnswers[ans]).rsplit()[-1]
                 if(toInsert=='A' or toInsert=='B' or toInsert=='C' or toInsert=='D'):
                     CORRECT_MCQ_ANSWERS.append(toInsert)
-            print("CORRECT ANSWER SIZE : ", CORRECT_MCQ_ANSWERS)
+            # print("CORRECT ANSWER SIZE : ", CORRECT_MCQ_ANSWERS)
             return CORRECT_MCQ_ANSWERS
             # print(len(CORRECT_MCQ_ANSWERS))
     else:
@@ -66,7 +66,7 @@ def getAnswer(question_pdf_path):
 
                 CORRECT_MCQ_ANSWERS+=eachPageAnswer
                 eachPageAnswer=[]
-        print("CORRECT ANSWER SIZE : ", CORRECT_MCQ_ANSWERS)
+
         return CORRECT_MCQ_ANSWERS
 
 
