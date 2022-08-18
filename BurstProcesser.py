@@ -201,8 +201,7 @@ def collectQuestions():
                     else:
                         cur_question += line + "\n"
 
-    # print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
-
+    print("For Page " + str(PAGE_NUMBER) +"Questions are\n" +str(QUES_TEXT_COLUMN_B))
 
 
 
@@ -451,7 +450,7 @@ def killDataEntryExpert():
 
 
 import glob
-path = '/Users/akifislam/Desktop/QuestionReader/AS  Biology (9700)'
+path = '/Users/akifislam/Desktop/QuestionReader/AS  Biology (9700)/2018/Test/2018'
 count = 0
 for cur_path in glob.glob(path+"/**", recursive = True):
     NuclearBomb()
@@ -462,7 +461,7 @@ for cur_path in glob.glob(path+"/**", recursive = True):
         print("Creating New File :", CSVFILENAME)
 
         with pdfplumber.open(PDF_PATH) as pdf:
-            newCSVfile = open(cur_path[0:64]+'Completed/'+CSVFILENAME, 'w')
+            newCSVfile = open(cur_path[0:64]+CSVFILENAME, 'w')
 
             writer = csv.writer(newCSVfile)
             # Adding Header
