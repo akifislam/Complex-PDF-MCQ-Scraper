@@ -8,6 +8,10 @@ import pdfplumber
 import csv
 import answerScrapper as ANSWER_SCRAPPER
 from OOP.question_text_parser import collectQuestions
+from OOP.answer_text_parser import collectOptions
+from OOP.answer_table_parser import getAnswerTableLocation
+from OOP.beautify_QTABLE import beautifyQTABLE
+from OOP.qus_serial_counter import countSerial
 import glob
 import time
 PDF_PATH = " "
@@ -49,41 +53,7 @@ def getCOORECTANSWERifExist(ques_no):
         # print(f"Answer for Question No {ques_no} is {CORRECT_MCQ_ANSWERS[ques_no-1]}")
         return CORRECT_MCQ_ANSWERS[ques_no-1]
 
-def beautifyQTABLE(table):
-    cur_table_str = ""
-    for row in range(0,len(table)-1):
-        for each_column in range (0,len(table[row])):
-            temp_t = table[row]
-            if(each_column!=len(table[row])-1):
-                modified_str = temp_t[each_column].replace("\n"," ")
-                cur_table_str+=modified_str + "#"
-            else:
-                modified_str = temp_t[each_column].replace("\n", " ")
-                if(row!=len(table)):
-                    cur_table_str+=modified_str+"@@\n"
-                else:
-                    cur_table_str+=modified_str
 
-    #Processing Last Row of QTABLE
-    lastRow = table[-1]
-    new_temp_options = []
-    for item in lastRow:
-        new_temp_options.append(item.split("\n"))
-
-    lastRow = new_temp_options
-    # print(lastRow)
-
-    for i in range (0,len(lastRow[0])):
-        for j in range(0,len(lastRow)):
-            if(j==len(lastRow)-1):
-                cur_table_str += lastRow[j][i]
-                continue
-            cur_table_str+=lastRow[j][i]+"#"
-        if i!=len(lastRow[0])-1:
-            cur_table_str+="@@\n"
-
-
-    return(cur_table_str)
 
 
 
@@ -124,22 +94,6 @@ def beautifyOptions(options,hasTable):
         return stringToInsert
 
 
-def countSerial(initialCount):
-    SLCOUNTER = initialCount
-    with pdfplumber.open(PDF_PATH) as pdf:
-        page_all_texts = (pdf.pages[PAGE_NUMBER].extract_text())
-        page_all_texts = page_all_texts
-        spllited_page_all_texts = (page_all_texts.splitlines(False))
-        # print(spllited_page_all_texts.count("?"))
-
-        # Checking How Many Questions are in a Page
-        for line in spllited_page_all_texts:
-            # print(line)
-            if(line.__contains__("?")):
-                SLCOUNTER+=1
-                SL_COLUMN_A.append(SLCOUNTER)
-
-        print("For Page " + str(PAGE_NUMBER) + "\tQuestion Serial : " + str(SL_COLUMN_A)+"\t",end="| ")
 
 
 
@@ -148,55 +102,11 @@ def countSerial(initialCount):
 
 
 
-def collectOptions():
-    with pdfplumber.open(PDF_PATH) as pdf:
-        questionSerialiterator = 0
-        page_all_texts = (pdf.pages[PAGE_NUMBER].extract_text())
-        page_all_texts = page_all_texts
-        spllited_page_all_texts = (page_all_texts.splitlines(False))
-        options_for_cur_question = []
-        possible_options=['A  ', 'B  ', 'C  ', 'D  ']
-        # Checking for Questions
-        for line in spllited_page_all_texts:
-
-            # Whiteline Ignore
-            if(line.isspace()):
-                continue
-
-            # Logic
-            for i in range (0,4):
-                if line.__contains__(possible_options[i]):
-                    optionStartIndex = line.find(possible_options[i])
-                    if(i<3):
-                        optionEndIndex = line.find(possible_options[i+1])
-                        options_for_cur_question.append(line[optionStartIndex+3:optionEndIndex])
-                    else:
-                        options_for_cur_question.append(line[optionStartIndex+3:])
-
-                if(len(options_for_cur_question)==4):
-                    OPTIONS_COLUMN_I_J_K_L.append(options_for_cur_question)
-                    options_for_cur_question = []
-
-
-    # print("For Page " + str(PAGE_NUMBER) + "Options are\n" + str(OPTIONS_COLUMN_I_J_K_L))
 
 
 
-def getAnswerTableLocation():
-    # print(len(OPTIONS_COLUMN_I_J_K_L))
-    for i in range (0,len(OPTIONS_COLUMN_I_J_K_L)):
-        if(OPTIONS_COLUMN_I_J_K_L[i][1].count("  "))>=1:
-            LEN = len(OPTIONS_COLUMN_I_J_K_L[i][1])
-            IND = OPTIONS_COLUMN_I_J_K_L[i][1].find("  ")
-            if(LEN-IND>2):
-                HAS_ANY_ANSWER_TABLE.append(True)
-            else:
-                HAS_ANY_ANSWER_TABLE.append(False)
-        else:
-            HAS_ANY_ANSWER_TABLE.append(False)
 
-    # print("For Page " + str(PAGE_NUMBER) + "Table Location\n" + str(HAS_ANY_ANSWER_TABLE))
-    # print()
+
 def getAnswerTableData():
     with pdfplumber.open(PDF_PATH) as pdf:
         # print(pdf.pages[PAGE_NUMBER].extract_tables())
@@ -230,9 +140,8 @@ def NuclearBomb():
 def killDataEntryExpert():
 
     QUES_TEXT_COLUMN_B = collectQuestions(PDF_PATH,PAGE_NUMBER,SL_COLUMN_A)
-    collectOptions()
-
-    getAnswerTableLocation()
+    OPTIONS_COLUMN_I_J_K_L = collectOptions(PDF_PATH,PAGE_NUMBER)
+    HAS_ANY_ANSWER_TABLE = getAnswerTableLocation(OPTIONS_COLUMN_I_J_K_L)
     getAnswerTableData()
 
 
@@ -265,7 +174,7 @@ def killDataEntryExpert():
             cur_question_text = QUES_TEXT_COLUMN_B[i]
         except:
             cur_question_text = "Can't Parse"
-            print("Because Q_B[i] not exist")
+            # print("Because Q_B[i] not exist")
             # print(QUES_TEXT_COLUMN_B)
 
         cur_Q_TABLE = ""
@@ -312,6 +221,7 @@ def killDataEntryExpert():
 
         try:
             #Filliing Up Options
+            # print("HAS ANY TABLE PRINTING",HAS_ANY_ANSWER_TABLE)
             if(HAS_ANY_ANSWER_TABLE[i]==True):
                 # print("Table Found")
                 for data in ANSWER_TABLE_DATA[ans_table_iterator]:
@@ -321,13 +231,14 @@ def killDataEntryExpert():
                         # print(data)
                 ans_table_iterator+=1
             else:
+                # print("This question has no table")
                 if(len(OPTIONS_COLUMN_I_J_K_L[i])==4):
                     cur_options = [OPTIONS_COLUMN_I_J_K_L[i][0], OPTIONS_COLUMN_I_J_K_L[i][1], OPTIONS_COLUMN_I_J_K_L[i][2],OPTIONS_COLUMN_I_J_K_L[i][3]]
                 else:
                     cur_options = ["Can't Parse", "Can't Parse", "Can't Parse", "Can't Parse"]
 
         except:
-            print("Couldn't get Options")
+            print("Couldn't get Options because of TABLE")
         # print("ALL TABLE DATA", ALL_TABLE_DATA)
         try:
             if(len(cur_options)==1):
@@ -345,7 +256,7 @@ def killDataEntryExpert():
                     new_temp_options.append(newlist)
                 cur_options = new_temp_options
         except:
-            print("Couldn't get Options")
+            print("Couldn't get Options because Options Length not 1")
 
 
         # print("OPTION SIZE : ", len(cur_options))
@@ -384,7 +295,7 @@ def killDataEntryExpert():
         elif(len(cur_options)==1):
             writer.writerow([cur_seral,(str(cur_qus_name)+"_Q"+str(cur_seral)),cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),"Cant Parse","Cant Parse","Cant Parse",cur_qus_correct_ans])
         elif(len(cur_options)==0):
-            writer.writerow([cur_seral,(str(cur_qus_name)+"_Q"+str(cur_seral)),cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse","Cant Parse","Cant Parse","Cant Parse",cur_qus_correct_ans])
+            writer.writerow([cur_seral,(str(cur_qus_name)+"_Q"+str(cur_seral)),cur_question_text,temp_QTABLE_data,temp_graph_diagram_status, cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,"Cant Parse__","Cant Parse__","Cant Parse__","Cant Parse__",cur_qus_correct_ans])
     print("Status : SUCCESS")
 
 
@@ -421,7 +332,7 @@ for cur_path in glob.glob(path+"/**", recursive = True):
 
             for cur_page in range (1,totalPage):
                 PAGE_NUMBER = cur_page
-                countSerial(QusSerialCounter)
+                SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
                 QusSerialCounter+=len(SL_COLUMN_A)
 
                 killDataEntryExpert()
