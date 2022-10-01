@@ -1,12 +1,5 @@
 import pdfplumber
-import csv
-import answerScrapper as ANSWER_SCRAPPER
-import glob
-import time
-import pdfplumber
-import csv
-import glob
-import time
+
 
 def collectQuestions(PDF_PATH,PAGE_NUMBER,SL_COLUMN_A):
     QUES_TEXT_COLUMN_B = []

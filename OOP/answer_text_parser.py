@@ -1,9 +1,6 @@
 import pdfplumber
-import csv
-import answerScrapper as ANSWER_SCRAPPER
-from OOP.question_text_parser import collectQuestions
-import glob
-import time
+
+
 def collectOptions(PDF_PATH,PAGE_NUMBER):
     OPTIONS_COLUMN_I_J_K_L = []
     with pdfplumber.open(PDF_PATH) as pdf:

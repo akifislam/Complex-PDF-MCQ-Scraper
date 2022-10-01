@@ -1,10 +1,3 @@
-import pdfplumber
-import csv
-import answerScrapper as ANSWER_SCRAPPER
-from OOP.question_text_parser import collectQuestions
-import glob
-import time
-
 def getAnswerTableLocation(OPTIONS_COLUMN_I_J_K_L):
     HAS_ANY_ANSWER_TABLE = []
     # print(len(OPTIONS_COLUMN_I_J_K_L))

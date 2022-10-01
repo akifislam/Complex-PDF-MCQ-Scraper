@@ -70,6 +70,15 @@ def getAnswer(question_pdf_path):
         return CORRECT_MCQ_ANSWERS
 
 
+def getCOORECTANSWERifExist(ques_no,CORRECT_MCQ_ANSWERS):
+    if(len(CORRECT_MCQ_ANSWERS)<ques_no):
+        print("Can't Parse because of GetCOrrectFunction")
+        return "Can't Parse"
+    else:
+        # print(f"Answer for Question No {ques_no} is {CORRECT_MCQ_ANSWERS[ques_no-1]}")
+        return CORRECT_MCQ_ANSWERS[ques_no-1]
+
+
 #
 # import glob
 # import csv

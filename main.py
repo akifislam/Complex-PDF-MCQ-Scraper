@@ -6,14 +6,15 @@ UPLOAD_LINK = 'http://moodle.mpower-social.com/converter/pix/images/'
 
 import pdfplumber
 import csv
-import answerScrapper as ANSWER_SCRAPPER
+from OOP import correct_answer_parser as ANSWER_SCRAPPER
 from OOP.question_text_parser import collectQuestions
 from OOP.answer_text_parser import collectOptions
 from OOP.answer_table_parser import getAnswerTableLocation
-from OOP.beautify_QTABLE import beautifyQTABLE
+from OOP.beautify_qtable import beautifyQTABLE
 from OOP.qus_serial_counter import countSerial
-import glob
-import time
+from OOP.beautify_options import beautifyOptions
+from OOP.correct_answer_parser import getCOORECTANSWERifExist
+
 PDF_PATH = " "
 
 # Adding Data
@@ -45,14 +46,6 @@ def isExistAnyDiagram(question):
 
 
 
-def getCOORECTANSWERifExist(ques_no):
-    if(len(CORRECT_MCQ_ANSWERS)<ques_no):
-        print("Can't Parse because of GetCOrrectFunction")
-        return "Can't Parse"
-    else:
-        # print(f"Answer for Question No {ques_no} is {CORRECT_MCQ_ANSWERS[ques_no-1]}")
-        return CORRECT_MCQ_ANSWERS[ques_no-1]
-
 
 
 
@@ -65,46 +58,6 @@ def searchQTABLE(ALL_TABLES,ONLY_ANS_TABLES):
 
 
 # def beautifyQTABLE(table):
-
-def beautifyOptions(options,hasTable):
-    tick = '(cid:1)'
-    cross='(cid:2)'
-
-    # print("Original Options : ",options)
-    if hasTable==False:
-        return options
-    else:
-        stringToInsert = ""
-        for item in range(1,len(options)-1):
-            if(str(options[item]).__contains__(tick)):
-                stringToInsert += "Right " + "#"
-            elif(str(options[item]).__contains__(cross)):
-                stringToInsert += "Cross " + "#"
-            else:
-                stringToInsert += options[item] + "#"
-
-        #Again:
-        if (str(options[-1]).__contains__(tick)):
-            stringToInsert += "Right"
-        elif (str(options[-1]).__contains__(cross)):
-            stringToInsert += "Cross"
-        else:
-            stringToInsert+= str(options[-1])
-        # print("Value to Insert : ",stringToInsert)
-        return stringToInsert
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def getAnswerTableData():
@@ -284,7 +237,7 @@ def killDataEntryExpert():
             temp_QTABLE_data = temp_QTABLE_data
         # print("QTABLE DATA : ", temp_QTABLE_data)
 
-        cur_qus_correct_ans = getCOORECTANSWERifExist(cur_seral)
+        cur_qus_correct_ans = getCOORECTANSWERifExist(cur_seral,CORRECT_MCQ_ANSWERS)
         #Error Handler
         if(len(cur_options)==4):
             writer.writerow([cur_seral,(str(cur_qus_name)+"_Q"+str(cur_seral)),cur_question_text,temp_QTABLE_data,temp_graph_diagram_status,cur_Q_TABLE,cur_answer_format,cur_ans_col_header_l1,cur_ans_col_header_l2,cur_ans_row_header_l2,beautifyOptions(cur_options[0],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[1],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[2],HAS_ANY_ANSWER_TABLE[i]),beautifyOptions(cur_options[3],HAS_ANY_ANSWER_TABLE[i]),cur_qus_correct_ans])
@@ -301,7 +254,7 @@ def killDataEntryExpert():
 
 
 import glob
-path = '/Users/akifislam/Desktop/QuestionReader/AS  Biology (9700)/2018/Test/2018'
+path = '/Users/akifislam/Desktop/Dustbin/QuestionReader/AS  Biology (9700)/2018/Test/2018'
 count = 0
 for cur_path in glob.glob(path+"/**", recursive = True):
     NuclearBomb()
@@ -337,7 +290,7 @@ for cur_path in glob.glob(path+"/**", recursive = True):
 
                 killDataEntryExpert()
                 NuclearBomb()
-                # print("===========")
+
             newCSVfile.close()
 
 
