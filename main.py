@@ -261,9 +261,9 @@ for cur_path in glob.glob(path+"/**", recursive = True):
     NuclearBomb()
     if(str(cur_path.split('/')[-1]).__contains__("qp") and str(cur_path.split('/')[-1]).__contains__("pdf") and str(cur_path).__contains__("2016")):
         try:
-            newFilePath = (str(cur_path).removesuffix(str(cur_path.split('/')[-1]))) #Saving Address
+            newFilePath = (str(cur_path).rstrip(str(cur_path.split('/')[-1]))) #Saving Address
             PDF_PATH = cur_path
-            CSVFILENAME = str(cur_path.split('/')[-4])+"_"+str(cur_path.split('/')[-3])+"_"+str(cur_path.split('/')[-2])+"_"+str(cur_path.split('/')[-1]).removesuffix(".pdf")+ "_Complete.csv"
+            CSVFILENAME = str(cur_path.split('/')[-4])+"_"+str(cur_path.split('/')[-3])+"_"+str(cur_path.split('/')[-2])+"_"+str(cur_path.split('/')[-1]).rstrip(".pdf")+ "_Complete.csv"
             print("Trying to Create CSV on Directory : ",newFilePath)
             print("Creating New File :", CSVFILENAME)
             print()
