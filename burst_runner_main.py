@@ -1,3 +1,7 @@
+#Enter your PC Username here
+pc_username = "akifislam"
+desktop_folder_name="Incomplete files"
+PDF_PATH = f"/Users/{pc_username}/Desktop/{desktop_folder_name}"
 
 # -*- coding: utf-8 -*-
 
@@ -15,7 +19,7 @@ from OOP.qus_serial_counter import countSerial
 from OOP.beautify_options import beautifyOptions
 from OOP.correct_answer_parser import getCOORECTANSWERifExist
 
-PDF_PATH = " "
+
 
 # Adding Data
 
@@ -255,50 +259,47 @@ def killDataEntryExpert():
 
 
 import glob
-path = '/Users/akifislam/Downloads/Incomplete files'
+path = PDF_PATH
 count = 0
 for cur_path in glob.glob(path+"/**", recursive = True):
     NuclearBomb()
-    if(str(cur_path.split('/')[-1]).__contains__("qp") and str(cur_path.split('/')[-1]).__contains__("pdf") and str(cur_path).__contains__("2016")):
-        try:
-            newFilePath = (str(cur_path).rstrip(str(cur_path.split('/')[-1]))) #Saving Address
-            PDF_PATH = cur_path
-            CSVFILENAME = str(cur_path.split('/')[-4])+"_"+str(cur_path.split('/')[-3])+"_"+str(cur_path.split('/')[-2])+"_"+str(cur_path.split('/')[-1]).rstrip(".pdf")+ "_Complete.csv"
-            print("Trying to Create CSV on Directory : ",newFilePath)
-            print("Creating New File :", CSVFILENAME)
-            print()
+    if(str(cur_path.split('/')[-1]).__contains__("qp") and str(cur_path.split('/')[-1]).__contains__("pdf") and str(cur_path)):
+        newFilePath = (str(cur_path).rstrip(str(cur_path.split('/')[-1]))) #Saving Address
+        PDF_PATH = cur_path
+        CSVFILENAME = str(cur_path.split('/')[-4])+"_"+str(cur_path.split('/')[-3])+"_"+str(cur_path.split('/')[-2])+"_"+str(cur_path.split('/')[-1]).rstrip(".pdf")+ "_Complete.csv"
+        print("Trying to Create CSV on Directory : ",newFilePath)
+        print("Creating New File :", CSVFILENAME)
+        print()
 
-            with pdfplumber.open(PDF_PATH) as pdf:
-                newCSVfile = open(newFilePath+CSVFILENAME, 'w')
+        with pdfplumber.open(PDF_PATH) as pdf:
+            newCSVfile = open(newFilePath+CSVFILENAME, 'w')
 
-                writer = csv.writer(newCSVfile)
-                # Adding Header
-                writer.writerow(
-                    ['SL.', 'Question Name*', 'Question Text*', '(TEMP)Any QTABLE?', '(TEMP)Require Screenshot?',
-                     'Question Table <QTABLE>', 'Answer Format*',
-                     'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
-                     'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
-                     'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
-                     'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
+            writer = csv.writer(newCSVfile)
+            # Adding Header
+            writer.writerow(
+                ['SL.', 'Question Name*', 'Question Text*', '(TEMP)Any QTABLE?', '(TEMP)Require Screenshot?',
+                 'Question Table <QTABLE>', 'Answer Format*',
+                 'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
+                 'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
+                 'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
+                 'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
 
 
-                QusSerialCounter = 0
-                totalPage = len(pdf.pages)
-                print("TOTAL PAGE in this DOC :" ,totalPage)
-                CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
+            QusSerialCounter = 0
+            totalPage = len(pdf.pages)
+            print("TOTAL PAGE in this DOC :" ,totalPage)
+            CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
 
-                for cur_page in range (1,totalPage):
-                    PAGE_NUMBER = cur_page
-                    SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
-                    QusSerialCounter+=len(SL_COLUMN_A)
+            for cur_page in range (1,totalPage):
+                PAGE_NUMBER = cur_page
+                SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
+                QusSerialCounter+=len(SL_COLUMN_A)
 
-                    killDataEntryExpert()
+                killDataEntryExpert()
 
-                    NuclearBomb()
+                NuclearBomb()
 
-                newCSVfile.close()
-        # #
-        except:
-            print("Sorry :( ")
+            newCSVfile.close()
+
 
 
