@@ -1,8 +1,11 @@
-#Enter your PC Username here
+# Warning : If you are facing 'Cant parse' problem, then run this file with proper value.
 
+#Enter your PC Username here
+StartPage = 4 # 'N' no page theke shurte korte hole 'N-1' Dite hobe.
+QusSerialCounter = 2 #'N' th Question theke shuru korte hole 'N-1' Dite hobe
 pc_username = "akifislam"
 desktop_folder_name="Incomplete files"
-PDF_PATH = f"/Users/{pc_username}/Desktop/{desktop_folder_name}"
+PDF_PATH = '/Users/akifislam/Desktop/Incomplete files/Physics/A level/2011/9702_s11_qp_12'
 
 # -*- coding: utf-8 -*-
 
@@ -48,6 +51,8 @@ def isExistAnyDiagram(question):
         return True
     else:
         return False
+
+
 
 
 
@@ -284,12 +289,12 @@ for cur_path in glob.glob(path+"/**", recursive = True):
                  'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
 
 
-            QusSerialCounter = 0
+
             totalPage = len(pdf.pages)
             print("TOTAL PAGE in this DOC :" ,totalPage)
             CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
 
-            for cur_page in range (1,totalPage):
+            for cur_page in range (StartPage,totalPage):
                 PAGE_NUMBER = cur_page
                 SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
                 QusSerialCounter+=len(SL_COLUMN_A)

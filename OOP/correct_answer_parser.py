@@ -5,9 +5,9 @@ import glob
 
 
 def getAnswer(question_pdf_path):
-    # print("QUS PDF PATH",question_pdf_path)
+    print("QUS PDF PATH",str(question_pdf_path.split('/')[-1])[6:8])
     try:
-        questionYear = int((question_pdf_path.split('/')[-3]))
+        questionYear = int(str(question_pdf_path.split('/')[-1])[6:8])
         print("-------------------")
         print("Question Year Detected : ", questionYear)
         print("-------------------")
@@ -18,7 +18,7 @@ def getAnswer(question_pdf_path):
         print("-------x------x----")
         print()
 
-    if(questionYear<2017):
+    if(questionYear<17):
         # print("Question Lower than 2017")
 
         # print("Working for <2017")
