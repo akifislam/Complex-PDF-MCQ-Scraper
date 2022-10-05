@@ -253,45 +253,52 @@ def killDataEntryExpert():
 
 
 
+
 import glob
-path = '/Users/akifislam/Desktop/Dustbin/QuestionReader/AS  Biology (9700)/2018/Test/2018'
+path = '/Users/akifislam/Downloads/Incomplete files'
 count = 0
 for cur_path in glob.glob(path+"/**", recursive = True):
     NuclearBomb()
-    if(str(cur_path[-18:]).__contains__("qp") and str(cur_path[-18:]).__contains__(".pdf")):
-        PDF_PATH = cur_path
-        CSVFILENAME = cur_path[-18:-4] + "_New_Complete_v2.csv"
-        print("Trying to Create CSV on Directory : ", cur_path[0:63])
-        print("Creating New File :", CSVFILENAME)
+    if(str(cur_path.split('/')[-1]).__contains__("qp") and str(cur_path.split('/')[-1]).__contains__("pdf") and str(cur_path).__contains__("2016")):
+        try:
+            newFilePath = (str(cur_path).removesuffix(str(cur_path.split('/')[-1]))) #Saving Address
+            PDF_PATH = cur_path
+            CSVFILENAME = str(cur_path.split('/')[-4])+"_"+str(cur_path.split('/')[-3])+"_"+str(cur_path.split('/')[-2])+"_"+str(cur_path.split('/')[-1]).removesuffix(".pdf")+ "_Complete.csv"
+            print("Trying to Create CSV on Directory : ",newFilePath)
+            print("Creating New File :", CSVFILENAME)
+            print()
 
-        with pdfplumber.open(PDF_PATH) as pdf:
-            newCSVfile = open(cur_path[0:64]+CSVFILENAME, 'w')
+            with pdfplumber.open(PDF_PATH) as pdf:
+                newCSVfile = open(newFilePath+CSVFILENAME, 'w')
 
-            writer = csv.writer(newCSVfile)
-            # Adding Header
-            writer.writerow(
-                ['SL.', 'Question Name*', 'Question Text*', '(TEMP)Any QTABLE?', '(TEMP)Require Screenshot?',
-                 'Question Table <QTABLE>', 'Answer Format*',
-                 'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
-                 'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
-                 'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
-                 'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
+                writer = csv.writer(newCSVfile)
+                # Adding Header
+                writer.writerow(
+                    ['SL.', 'Question Name*', 'Question Text*', '(TEMP)Any QTABLE?', '(TEMP)Require Screenshot?',
+                     'Question Table <QTABLE>', 'Answer Format*',
+                     'Answer Column header/s Level1*', 'Answer Column header/s Level2', 'Answer Row header/s Level2',
+                     'Option A*', 'Option B*', 'Option C*', 'Option D*', 'Correct Answer*', 'Tags-Topic', 'Tag-Difficulty*',
+                     'Tag-UniqueID*', 'General Feedback', 'Grade(Default =1)', 'Penalty (default = none)',
+                     'Shuffle Answers (default = no)', 'Answer numbering (default = abcd..)'])
 
 
-            QusSerialCounter = 0
-            totalPage = len(pdf.pages)
-            print("TOTAL PAGE in this DOC :" ,totalPage)
-            CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
+                QusSerialCounter = 0
+                totalPage = len(pdf.pages)
+                print("TOTAL PAGE in this DOC :" ,totalPage)
+                CORRECT_MCQ_ANSWERS = ANSWER_SCRAPPER.getAnswer(PDF_PATH)
 
-            for cur_page in range (1,totalPage):
-                PAGE_NUMBER = cur_page
-                SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
-                QusSerialCounter+=len(SL_COLUMN_A)
+                for cur_page in range (1,totalPage):
+                    PAGE_NUMBER = cur_page
+                    SL_COLUMN_A = countSerial(PDF_PATH,PAGE_NUMBER,QusSerialCounter)
+                    QusSerialCounter+=len(SL_COLUMN_A)
 
-                killDataEntryExpert()
-                NuclearBomb()
+                    killDataEntryExpert()
 
-            newCSVfile.close()
+                    NuclearBomb()
 
+                newCSVfile.close()
+        # #
+        except:
+            print("Sorry :( ")
 
 

@@ -5,14 +5,14 @@ import glob
 
 
 def getAnswer(question_pdf_path):
-    questionYear = int((question_pdf_path.split('/')[-2]))
-
+    # print("QUS PDF PATH",question_pdf_path)
+    questionYear = int((question_pdf_path.split('/')[-3]))
     if(questionYear<2017):
         # print("Question Lower than 2017")
 
         # print("Working for <2017")
         #For Upto 2016
-        PATH = str(question_pdf_path).replace("qp","ms")
+        PATH = str(question_pdf_path).removesuffix(question_pdf_path.split('/')[-1])+str(question_pdf_path.split('/')[-1]).replace("qp","ms")
         CORRECT_MCQ_ANSWERS = []
         # print("CORRECT ANSWER SIZE : ", len(CORRECT_MCQ_ANSWERS))
         with pdfplumber.open(PATH) as pdf:
@@ -45,7 +45,7 @@ def getAnswer(question_pdf_path):
     else:
         # For Greater than 2016
 
-        PATH = str(question_pdf_path).replace("qp", "ms")
+        PATH = str(question_pdf_path).removesuffix(question_pdf_path.split('/')[-1])+str(question_pdf_path.split('/')[-1]).replace("qp","ms")
         CORRECT_MCQ_ANSWERS = []
         # print("CORRECT ANSWER SIZE : ", len(CORRECT_MCQ_ANSWERS))
         eachPageAnswer = []
